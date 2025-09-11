@@ -60,7 +60,11 @@ def write_with_separators(
             elif col_name in KMZ_HEADERS:
                 cell.fill = PatternFill(fill_type="solid", fgColor=GOLD)
             cell.font = header_font
-            cell.alignment = Alignment(horizontal="center")
+            # Header alignment: center by default, left-align Route_Desc
+            if col_name == "Route_Desc":
+                cell.alignment = Alignment(horizontal="left")
+            else:
+                cell.alignment = Alignment(horizontal="center")
         current_row += 1
 
         # 3) Write group rows in order
@@ -78,6 +82,48 @@ def write_with_separators(
                 # Only set for date-like values
                 if cell.value:
                     cell.number_format = "mm/dd/yyyy"
+        except Exception:
+            pass
+
+        # 6) Apply alignment overrides for KMZ (gold) columns in data rows
+        try:
+            # Indices for gold columns
+            gold_cols = [
+                (headers.index("PLID") + 1, "center"),
+                (headers.index("BeginMeasu") + 1, "center"),
+                (headers.index("EndMeasure") + 1, "center"),
+                (headers.index("Class_Loca") + 1, "center"),
+                (headers.index("Diameter") + 1, "center"),
+                (headers.index("Product") + 1, "center"),
+                (headers.index("Route_Desc") + 1, "left"),
+            ]
+            for r in range(start_data_row, current_row):
+                for c_idx, align in gold_cols:
+                    cell = ws.cell(row=r, column=c_idx)
+                    if align == "left":
+                        cell.alignment = Alignment(horizontal="left")
+                    else:
+                        cell.alignment = Alignment(horizontal="center")
+        except Exception:
+            pass
+
+        # 5) Ensure KMZ numeric columns are numbers with desired formats
+        try:
+            plid_idx = headers.index("PLID") + 1
+            for r in range(start_data_row, current_row):
+                cell = ws.cell(row=r, column=plid_idx)
+                if isinstance(cell.value, (int, float)):
+                    cell.number_format = "0"
+        except Exception:
+            pass
+        try:
+            begin_idx = headers.index("BeginMeasu") + 1
+            end_idx = headers.index("EndMeasure") + 1
+            for r in range(start_data_row, current_row):
+                for c in (begin_idx, end_idx):
+                    cell = ws.cell(row=r, column=c)
+                    if isinstance(cell.value, (int, float)):
+                        cell.number_format = "0.00"
         except Exception:
             pass
 

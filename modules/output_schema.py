@@ -10,15 +10,17 @@ from .csv_schema import CSVSchema
 
 # Final output column order to match the sample workbook
 OUTPUT_COLUMNS: List[str] = [
-    "Date",          # from Time Stamp (date only, mm/dd/yyyy formatting in writer)
+    # KMZ fields first (gold)
     "PLID",          # from KMZ Route_Name
-    "PPM",           # from CSV
     "BeginMeasu",    # from KMZ
     "EndMeasure",    # from KMZ
-    "Route_Desc",    # from KMZ
     "Class_Loca",    # from KMZ
     "Diameter",      # from KMZ
     "Product",       # from KMZ
+    "Route_Desc",    # from KMZ
+    # CSV fields after (blue)
+    "Date",          # from Time Stamp (date only)
+    "PPM",           # from CSV
     "Longitude",     # from CSV
     "Latitude",      # from CSV
     "TEMP (F)",      # derived from Temperature (C)
@@ -49,11 +51,11 @@ def to_output_df(df: pd.DataFrame) -> pd.DataFrame:
     else:
         out["Date"] = pd.NaT
 
-    # PLID from KMZ_Route_Name
+    # PLID from KMZ_Route_Name (numeric for Excel)
     if "KMZ_Route_Name" in df.columns:
-        out["PLID"] = df["KMZ_Route_Name"].astype("string").fillna("")
+        out["PLID"] = pd.to_numeric(df["KMZ_Route_Name"], errors="coerce")
     else:
-        out["PLID"] = ""
+        out["PLID"] = pd.NA
 
     # PPM
     if schema.ppm_col in df.columns:
@@ -70,7 +72,10 @@ def to_output_df(df: pd.DataFrame) -> pd.DataFrame:
         ("KMZ_Diameter", "Diameter"),
         ("KMZ_Product", "Product"),
     ]:
-        out[dst] = df[src] if src in df.columns else ""
+        if src in df.columns and dst in {"BeginMeasu", "EndMeasure", "Class_Loca", "Diameter"}:
+            out[dst] = pd.to_numeric(df[src], errors="coerce")
+        else:
+            out[dst] = df[src] if src in df.columns else ""
 
     # Coordinates
     out["Longitude"] = pd.to_numeric(df.get(schema.longitude_col, pd.Series(dtype=float)), errors="coerce")
@@ -89,4 +94,3 @@ def to_output_df(df: pd.DataFrame) -> pd.DataFrame:
 
     # Reorder strictly
     return out.reindex(columns=OUTPUT_COLUMNS)
-

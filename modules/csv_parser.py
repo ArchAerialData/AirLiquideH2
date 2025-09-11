@@ -71,9 +71,17 @@ def validate_and_convert_types(df: pd.DataFrame, schema: Optional[CSVSchema] = N
     schema = schema or CSVSchema()
     out = df.copy()
 
-    # Convert timestamp
+    # Convert timestamp: strip leading stray characters (e.g., '?') then parse
     if schema.timestamp_col in out.columns:
-        out[schema.timestamp_col] = pd.to_datetime(out[schema.timestamp_col], errors="coerce")
+        ts = out[schema.timestamp_col].astype(str).str.strip()
+        # Remove BOM or stray leading markers (e.g., '\ufeff', '?')
+        ts = ts.str.replace('\ufeff', '', regex=False)
+        ts = ts.str.replace(r"^\?+", "", regex=True)
+        # Common format observed: YYYY-MM-DD HH:MM:SS
+        parsed = pd.to_datetime(ts, format="%Y-%m-%d %H:%M:%S", errors="coerce")
+        # Fallback if strict format fails
+        parsed = parsed.fillna(pd.to_datetime(ts, errors="coerce"))
+        out[schema.timestamp_col] = parsed
 
     # Convert numeric columns
     for col in [schema.longitude_col, schema.latitude_col, schema.temperature_col, schema.ppm_col]:
