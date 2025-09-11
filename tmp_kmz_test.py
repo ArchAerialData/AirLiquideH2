@@ -1,0 +1,5 @@
+﻿from pathlib import Path
+from modules.kmz_lookup import KMZIndex
+kmz = KMZIndex(Path('pipeline_data.kmz'))
+print('Features:', len(kmz.features))
+print('Lookup:', kmz.lookup(29.6105, -95.0835, 200))

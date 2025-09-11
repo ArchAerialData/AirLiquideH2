@@ -1,0 +1,26 @@
+{
+  "bypass_permissions": true,
+  "auto_commit": false,
+  "verbose_logging": true,
+  "workspace_settings": {
+    "python_version": "3.11+",
+    "preferred_test_framework": "pytest",
+    "code_style": {
+      "line_length": 120,
+      "use_type_hints": true,
+      "import_style": "absolute"
+    }
+  },
+  "project_context": {
+    "type": "csv_processing_pipeline",
+    "status": "skeleton_implementation",
+    "main_entry_point": "main.py",
+    "module_path": "modules/"
+  },
+  "development_preferences": {
+    "create_tests": true,
+    "add_docstrings": true,
+    "validate_inputs": true,
+    "handle_errors_gracefully": true
+  }
+}
