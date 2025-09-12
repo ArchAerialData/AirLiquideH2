@@ -8,23 +8,51 @@ from pathlib import Path
 from modules.io_utils import resolve_input_paths, derive_output_path
 from modules.file_discovery import find_csv_files
 from modules.logging_utils import get_logger
-from modules.csv_parser import (
-    parse_raw_csv,
-    attach_source_metadata,
-    ParsedCSV,
-    enrich_with_kmz,
-)
-from modules.csv_schema import infer_source_info
-from modules.kmz_lookup import KMZIndex
-from modules.aggregator import combine
-from modules.xlsx_writer import write_with_separators
-from modules.xlsx_multisheet_writer import write_all_and_date_sheets
-from modules.config import SeparatorStyle, DEFAULT_KMZ_PATH, DEFAULT_KMZ_DISTANCE_THRESHOLD
 from modules.output_schema import to_output_df
 
 logger = get_logger(__name__)
 
+def _ensure_requirements() -> None:
+    import importlib, subprocess, sys, os
+    needed = [
+        ("pandas", "pandas"),
+        ("openpyxl", "openpyxl"),
+        ("fastkml", "fastkml"),
+        ("shapely", "shapely"),
+        ("bs4", "beautifulsoup4"),
+        ("lxml", "lxml"),
+        ("rtree", "rtree"),
+        ("pyproj", "pyproj"),
+    ]
+    missing = []
+    for mod, _ in needed:
+        try:
+            importlib.import_module(mod)
+        except Exception:
+            missing.append(mod)
+    if missing:
+        req = str(Path(__file__).parent / "requirements.txt")
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", req])
+        except Exception:
+            pass
+
+
 def run(argv: list[str]) -> None:
+    _ensure_requirements()
+
+    # Lazy imports of heavy deps after ensuring requirements
+    from modules.csv_parser import (
+        parse_raw_csv,
+        attach_source_metadata,
+        ParsedCSV,
+        enrich_with_kmz,
+    )
+    from modules.csv_schema import infer_source_info
+    from modules.kmz_lookup import KMZIndex
+    from modules.aggregator import combine
+    from modules.xlsx_multisheet_writer import write_all_and_date_sheets
+    from modules.config import SeparatorStyle, DEFAULT_KMZ_PATH, DEFAULT_KMZ_DISTANCE_THRESHOLD
     """Complete processing pipeline."""
     # Setup
     input_dirs = resolve_input_paths(argv)

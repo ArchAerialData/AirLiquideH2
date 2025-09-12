@@ -1,0 +1,9 @@
+pandas
+openpyxl
+fastkml
+shapely
+beautifulsoup4
+lxml
+rtree
+pyproj
+PyYAML

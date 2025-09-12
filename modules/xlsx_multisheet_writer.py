@@ -173,7 +173,8 @@ def _write_data(ws, df: pd.DataFrame, headers: List[str], kml_dir: Path) -> Tupl
                     outer.append('</table></td></tr></table></body></html>')
                     # Only write the file if it does not already exist; otherwise reuse existing file
                     if not kml_path.exists():
-                        kml_path.write_text(_kml_for_point(str(ppm_val) if not pd.isna(ppm_val) else base, lat, lon, "".join(outer)), encoding="utf-8")
+                        # Suppress the GE title in upper-left by leaving <name> empty; PPM is shown centered in body
+                        kml_path.write_text(_kml_for_point("", lat, lon, "".join(outer)), encoding="utf-8")
                     cell = ws.cell(row=excel_row, column=view_idx)
                     cell.value = "View Placemark"
                     cell.hyperlink = str(kml_path.resolve())
