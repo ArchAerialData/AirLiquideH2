@@ -125,6 +125,17 @@ def _write_data(ws, df: pd.DataFrame, headers: List[str], kml_dir: Path) -> Tupl
                     bme = val("BeginMeasu")
                     eme = val("EndMeasure")
                     header_title = f"{plid} {bme} - {eme}".strip()
+                    # Format coords to 7 decimals for display
+                    try:
+                        lat_disp = f"{float(df.iloc[i].get('Latitude')):.7f}"
+                    except Exception:
+                        lat_disp = val("Latitude")
+                    try:
+                        lon_disp = f"{float(df.iloc[i].get('Longitude')):.7f}"
+                    except Exception:
+                        lon_disp = val("Longitude")
+                    # PPM heading centered with suffix
+                    ppm_text = "" if pd.isna(ppm_val) else f"{ppm_val} PPM"
                     rows_kv = [
                         ("PPM", val("PPM")),
                         ("PLID", plid),
@@ -135,8 +146,8 @@ def _write_data(ws, df: pd.DataFrame, headers: List[str], kml_dir: Path) -> Tupl
                         ("Diameter", val("Diameter")),
                         ("Product", val("Product")),
                         ("Date", val("Date")),
-                        ("Longitude", val("Longitude")),
-                        ("Latitude", val("Latitude")),
+                        ("Longitude", lon_disp),
+                        ("Latitude", lat_disp),
                         ("Serial No.", val("Serial No.")),
                         ("Source_File", val("Source_File")),
                     ]
@@ -145,6 +156,11 @@ def _write_data(ws, df: pd.DataFrame, headers: List[str], kml_dir: Path) -> Tupl
                     outer.append('<head><META http-equiv="Content-Type" content="text/html"></head>')
                     outer.append('<body style="margin:0;overflow:auto;background:#FFFFFF;">')
                     outer.append('<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">')
+                    # Top centered PPM text
+                    if ppm_text:
+                        outer.append('<tr style="text-align:center;font-weight:bold;"><td>')
+                        outer.append(ppm_text)
+                        outer.append('</td></tr>')
                     # Header band
                     outer.append('<tr style="text-align:center;font-weight:bold;background:#9CBCE2"><td>')
                     outer.append(header_title)
@@ -153,7 +169,7 @@ def _write_data(ws, df: pd.DataFrame, headers: List[str], kml_dir: Path) -> Tupl
                     outer.append('<tr><td><table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">')
                     for idx_row, (label, value) in enumerate(rows_kv):
                         zebra = " bgcolor=\"#D4E4F3\"" if (idx_row % 2 == 1) else ""
-                        outer.append(f"<tr{zebra}><td>{label}</td><td>{value}</td></tr>")
+                        outer.append(f"<tr{zebra}><td style='font-weight:bold;padding:2px 10px 2px 8px'>{label}</td><td style='padding:2px 8px'>{value}</td></tr>")
                     outer.append('</table></td></tr></table></body></html>')
                     # Only write the file if it does not already exist; otherwise reuse existing file
                     if not kml_path.exists():
