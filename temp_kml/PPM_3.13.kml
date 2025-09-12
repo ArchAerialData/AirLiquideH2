@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <Placemark>
+      <name>3.13</name>
+      <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt"><head><META http-equiv="Content-Type" content="text/html"></head><body style="margin:0;overflow:auto;background:#FFFFFF;"><table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px"><tr style="text-align:center;font-weight:bold;background:#9CBCE2"><td>100758 6957.97 - 10175.23</td></tr><tr><td><table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px"><tr><td>PPM</td><td>3.13</td></tr><tr bgcolor="#D4E4F3"><td>PLID</td><td>100758</td></tr><tr><td>BeginMeasu</td><td>6957.97</td></tr><tr bgcolor="#D4E4F3"><td>EndMeasure</td><td>10175.23</td></tr><tr><td>Route_Desc</td><td>Lowlands Project</td></tr><tr bgcolor="#D4E4F3"><td>Class_Loca</td><td>1</td></tr><tr><td>Diameter</td><td>0</td></tr><tr bgcolor="#D4E4F3"><td>Product</td><td>H</td></tr><tr><td>Date</td><td>2025-09-02</td></tr><tr bgcolor="#D4E4F3"><td>Longitude</td><td>-94.04039044</td></tr><tr><td>Latitude</td><td>30.003637899646364</td></tr><tr bgcolor="#D4E4F3"><td>Serial No.</td><td>82ab18f0</td></tr><tr><td>Source_File</td><td>AL-Flight 8.CSV</td></tr></table></td></tr></table></body></html>]]></description>
+      <Point>
+        <coordinates>-94.04039044,30.003637899646364,0</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>

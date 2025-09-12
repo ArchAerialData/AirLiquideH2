@@ -48,7 +48,7 @@ def load_config_from_yaml(path: str | None) -> Config:
     return cfg
 
 # Simple module-level defaults (can be used without YAML)
-DEFAULT_KMZ_DISTANCE_THRESHOLD: float = 100.0
+DEFAULT_KMZ_DISTANCE_THRESHOLD: float = 150.0
 DEFAULT_KMZ_PATH: str = "kmz/AirLiquideH2.kmz"
 OUTPUT_FORMAT: str = "xlsx"
 INCLUDE_CSV_OUTPUT: bool = False

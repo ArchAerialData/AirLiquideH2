@@ -23,9 +23,16 @@ OUTPUT_COLUMNS: List[str] = [
     "PPM",           # from CSV
     "Longitude",     # from CSV
     "Latitude",      # from CSV
+    "View in Google Earth",  # hyperlink to local temp KML
     "TEMP (F)",      # derived from Temperature (C)
     "Serial No.",    # from CSV
     "Source_File",   # from metadata
+]
+
+# Optional trailing diagnostics to append (exact order)
+TRAILING_EXTRAS: List[str] = [
+    "KMZ_Match_Method",
+    "Nearest_Distance_Meters",
 ]
 
 # Grouping of headers for styling
@@ -41,6 +48,7 @@ def to_output_df(df: pd.DataFrame) -> pd.DataFrame:
     - PLID: from 'KMZ_Route_Name'
     - Other KMZ fields copied as-is if present
     - Missing KMZ fields are left blank
+    - Append trailing diagnostics at the end if present
     """
     schema = CSVSchema()
     out = pd.DataFrame()
@@ -92,5 +100,13 @@ def to_output_df(df: pd.DataFrame) -> pd.DataFrame:
     out["Serial No."] = df.get(schema.serial_col, "").astype("string")
     out["Source_File"] = df.get("Source_File", "").astype("string")
 
-    # Reorder strictly
-    return out.reindex(columns=OUTPUT_COLUMNS)
+    # Append trailing diagnostics if present in input
+    appended_cols: List[str] = []
+    for extra in TRAILING_EXTRAS:
+        if extra in df.columns:
+            # Pass through, ensuring numeric formatting for distance later
+            out[extra] = df[extra]
+            appended_cols.append(extra)
+
+    # Reorder: base columns followed by appended diagnostics (if any)
+    return out.reindex(columns=OUTPUT_COLUMNS + appended_cols)

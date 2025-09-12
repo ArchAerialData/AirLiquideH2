@@ -142,11 +142,24 @@ def enrich_with_kmz(parsed_csv: ParsedCSV, kmz_index: KMZIndex, max_distance: fl
             "Class_Loca": "KMZ_Class_Loca",
             "BeginMeasu": "KMZ_BeginMeasu",
             "EndMeasure": "KMZ_EndMeasure",
-            "Distance_Meters": "KMZ_Distance_Meters",
         }
         for kmz_field, df_col in field_mapping.items():
             if kmz_field in res:
                 df.at[idx, df_col] = res[kmz_field]
+
+        # Append diagnostics at end if present
+        if 'Match_Method' in res:
+            df.at[idx, 'KMZ_Match_Method'] = res['Match_Method']
+        if 'Nearest_Distance_Meters' in res:
+            df.at[idx, 'Nearest_Distance_Meters'] = res['Nearest_Distance_Meters']
+
+    # Exclude rows outside the upper bound distance (drop rows without a match or with distance > max_distance)
+    if 'Nearest_Distance_Meters' in df.columns:
+        try:
+            mask = pd.to_numeric(df['Nearest_Distance_Meters'], errors='coerce') <= float(max_distance)
+            df = df.loc[mask.fillna(False)].copy()
+        except Exception:
+            pass
 
     return ParsedCSV(
         df=df,
