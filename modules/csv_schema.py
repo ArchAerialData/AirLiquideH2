@@ -59,7 +59,9 @@ RAW_CSV_COLUMN_MAPPING: dict[int, str] = {
     2: "Longitude",       # Column C
     3: "Latitude",        # Column D
     4: "Temperature",     # Column E (normalize odd raw header to a safe name)
-    11: "PPM",            # Column L (missing in raw; fixed)
+    # Note: "PPM" can drift across files; index 11 is the most common,
+    # but downstream code will also attempt pattern-based inference.
+    11: "PPM",            # Column L (typical)
     13: "Serial No.",     # Column N
 }
 
@@ -97,11 +99,17 @@ COLUMN_DTYPES: dict[str, str] = {
 
 
 def fix_csv_headers(raw_headers: pd.Series) -> pd.Series:
-    """Fix missing PPM header in column L (index 11)."""
+    """Normalize header text but do not coerce aliases to PPM.
+
+    We now expect unedited raw CSVs where hydrogen readings live under a
+    header such as "H2 %" (e.g., cell L3). We intentionally keep that label
+    intact and derive a numeric "PPM" column later as `H2 % * 10000`.
+
+    Older, pilot-edited files that already include a real "PPM" column will
+    continue to work because we won't overwrite or rename anything here.
+    """
     corrected = raw_headers.copy()
-    if len(corrected) > 11:
-        corrected.iloc[11] = "PPM"
-    return corrected
+    return corrected.astype(str).str.replace("\ufeff", "", regex=False).str.strip()
 
 
 # Backwards-compat lightweight schema container still used in early skeleton

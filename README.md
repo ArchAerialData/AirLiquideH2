@@ -29,6 +29,12 @@ Key Features
   - Per‑row KML written to `temp_kml/` and hyperlinked as “View Placemark”
   - Placemark balloon mimics client style: centered “{PPM} PPM”, blue header band, zebra table; lat/long to 7 decimals
   - `temp_kml` is cleared each run
+  - A consolidated KMZ is produced that bundles all per‑row placemarks (doc.kml + individual KMLs) alongside the heatmap and pin KMZs when running hits export
+
+KMZ Exports (hits-only flow)
+- `Combined_Extracted_Hits_Points.kmz` — point pins colored by PPM
+- `Combined_Extracted_Hits_Heatmap.kmz` — heatmap ground overlay
+- `Combined_Extracted_Hits_Placemarks.kmz` — all per‑row “View Placemark” KMLs zipped with a doc.kml linking each
 
 Install & Run
 1) Python 3.10+
@@ -38,8 +44,13 @@ Install & Run
    - `python main.py "path\to\parent_folder"`
    - `python clean.py "path\to\parent_folder"`
 4) Outputs
-   - `Combined_Extracted.xlsx` (main)
-   - `Combined_Extracted_Clean.xlsx` (clean)
+   - Excel-Reports: XLSX/CSV exports
+     - `Excel-Reports/Combined_Extracted.xlsx` (main)
+     - `Excel-Reports/Combined_Extracted_Clean.xlsx` (clean)
+     - `Excel-Reports/Combined_Extracted_Hits.xlsx` and `.csv` (hits flow)
+- KMZ: map exports (hits flow)
+  - `KMZ/Combined_Extracted_Hits_Placemarks.kmz`
+  - `KMZ/Combined_Extracted_Hits_All.kmz` (heatmap + all per-row placemarks)
 
 Dedup Logic (clean.py)
 - Per CSV, compute unique (BeginMeasu, EndMeasure)

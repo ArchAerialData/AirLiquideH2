@@ -96,9 +96,15 @@ def to_output_df(df: pd.DataFrame) -> pd.DataFrame:
     else:
         out["TEMP (F)"] = pd.NA
 
-    # Serial + source
-    out["Serial No."] = df.get(schema.serial_col, "").astype("string")
-    out["Source_File"] = df.get("Source_File", "").astype("string")
+    # Serial + source (create empty series if missing)
+    if schema.serial_col in df.columns:
+        out["Serial No."] = df[schema.serial_col].astype("string")
+    else:
+        out["Serial No."] = pd.Series([""] * len(out), index=out.index, dtype="string")
+    if "Source_File" in df.columns:
+        out["Source_File"] = df["Source_File"].astype("string")
+    else:
+        out["Source_File"] = pd.Series([""] * len(out), index=out.index, dtype="string")
 
     # Append trailing diagnostics if present in input
     appended_cols: List[str] = []

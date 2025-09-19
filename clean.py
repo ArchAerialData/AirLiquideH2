@@ -139,7 +139,7 @@ def run(argv: list[str]) -> None:
     combined_df, boundaries = combine(parsed_csvs)
 
     # Write output (multi-sheet by default)
-    out_path = derive_output_path(input_dirs, preferred_name="Combined_Extracted_Clean.xlsx")
+    out_path = derive_output_path(input_dirs, preferred_name="Excel-Reports/Combined_Extracted_Clean.xlsx")
     logger.info(f"Writing output to: {out_path}")
 
     separator_style = SeparatorStyle()

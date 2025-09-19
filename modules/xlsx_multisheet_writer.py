@@ -100,7 +100,14 @@ def _write_data(ws, df: pd.DataFrame, headers: List[str], kml_dir: Path) -> Tupl
     lon_name = "Longitude" if "Longitude" in headers else None
 
     for i in range(len(df)):
-        row_vals = [df.iloc[i].get(col) for col in headers]
+        def _to_excel(v):
+            try:
+                if pd.isna(v):
+                    return None
+            except Exception:
+                pass
+            return v
+        row_vals = [_to_excel(df.iloc[i].get(col)) for col in headers]
         ws.append(row_vals)
         excel_row = ws.max_row
         # Hyperlink generation per row
@@ -110,12 +117,18 @@ def _write_data(ws, df: pd.DataFrame, headers: List[str], kml_dir: Path) -> Tupl
                 lon = float(df.iloc[i][lon_name])
                 if pd.notna(lat) and pd.notna(lon):
                     kml_dir.mkdir(parents=True, exist_ok=True)
-                    # Name KMLs using the PPM value
+                    # Name KMLs using the PPM value (rounded to 2 decimals) and add a unique row suffix
                     ppm_val = df.iloc[i].get("PPM")
                     if pd.isna(ppm_val):
                         base = f"row_{i+1}"
+                        ppm_disp = ""
                     else:
-                        base = f"PPM_{ppm_val}"
+                        try:
+                            ppm_float = float(ppm_val)
+                            ppm_disp = f"{ppm_float:.2f}"
+                        except Exception:
+                            ppm_disp = str(ppm_val)
+                        base = f"PPM_{ppm_disp}_r{i+1}"
                     base = _sanitize_filename(base)
                     kml_path = kml_dir / f"{base}.kml"
                     # Build HTML with client-like styling (header band + inner table with zebra rows)
@@ -134,10 +147,10 @@ def _write_data(ws, df: pd.DataFrame, headers: List[str], kml_dir: Path) -> Tupl
                         lon_disp = f"{float(df.iloc[i].get('Longitude')):.7f}"
                     except Exception:
                         lon_disp = val("Longitude")
-                    # PPM heading centered with suffix
-                    ppm_text = "" if pd.isna(ppm_val) else f"{ppm_val} PPM"
+                    # PPM heading centered with suffix (rounded to 2 decimals)
+                    ppm_text = "" if pd.isna(ppm_val) else f"{ppm_disp} PPM"
                     rows_kv = [
-                        ("PPM", val("PPM")),
+                        ("PPM", ppm_text.replace(" PPM", "")),
                         ("PLID", plid),
                         ("BeginMeasu", bme),
                         ("EndMeasure", eme),
@@ -156,11 +169,7 @@ def _write_data(ws, df: pd.DataFrame, headers: List[str], kml_dir: Path) -> Tupl
                     outer.append('<head><META http-equiv="Content-Type" content="text/html"></head>')
                     outer.append('<body style="margin:0;overflow:auto;background:#FFFFFF;">')
                     outer.append('<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">')
-                    # Top centered PPM text
-                    if ppm_text:
-                        outer.append('<tr style="text-align:center;font-weight:bold;"><td>')
-                        outer.append(ppm_text)
-                        outer.append('</td></tr>')
+                    # (Dedup) Do not add a centered PPM line in the body; we'll use the KML <name> instead
                     # Header band
                     outer.append('<tr style="text-align:center;font-weight:bold;background:#9CBCE2"><td>')
                     outer.append(header_title)
@@ -173,8 +182,9 @@ def _write_data(ws, df: pd.DataFrame, headers: List[str], kml_dir: Path) -> Tupl
                     outer.append('</table></td></tr></table></body></html>')
                     # Only write the file if it does not already exist; otherwise reuse existing file
                     if not kml_path.exists():
-                        # Suppress the GE title in upper-left by leaving <name> empty; PPM is shown centered in body
-                        kml_path.write_text(_kml_for_point("", lat, lon, "".join(outer)), encoding="utf-8")
+                        # Use the KML <name> to show e.g. "3.51 PPM" in the balloon header and above the pin
+                        kml_name = ppm_text if ppm_text else base
+                        kml_path.write_text(_kml_for_point(kml_name, lat, lon, "".join(outer)), encoding="utf-8")
                     cell = ws.cell(row=excel_row, column=view_idx)
                     cell.value = "View Placemark"
                     cell.hyperlink = str(kml_path.resolve())

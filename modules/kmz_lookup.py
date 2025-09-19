@@ -52,7 +52,7 @@ class PolylineFeature:
 
 
 class KMZIndex:
-    def __init__(self, kmz_path: Path, buffer_meters: float = 15.24, candidate_count: int = 50, search_radius_m: float = 200.0):
+    def __init__(self, kmz_path: Path, buffer_meters: float = 20.0, candidate_count: int = 50, search_radius_m: float = 200.0):
         self.kmz_path = Path(kmz_path)
         self.features: List[PolylineFeature] = []
         self._spatial_index = None

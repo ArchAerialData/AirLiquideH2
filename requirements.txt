@@ -7,3 +7,5 @@ lxml
 rtree
 pyproj
 PyYAML
+numpy
+pillow
