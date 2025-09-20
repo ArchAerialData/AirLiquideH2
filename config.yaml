@@ -1,0 +1,53 @@
+# YAML config for AirLiquideH2
+# This file is loaded automatically. Comments below explain each setting.
+
+# Minimum gas reading (in PPM) that counts as a “hit”.
+# Rows below this value are excluded from the hits Excel and KMZ outputs.
+# Typical range: 5.0–7.0
+hits_threshold: 5.0
+
+# Distance (in meters) between pins shown in the combined KMZ
+# (heatmap + pins). The app always shows the highest single PPM
+# reading, then places additional pins every N meters along the
+# main direction of travel.
+# Larger values = fewer pins; smaller values = more pins.
+# Typical range: 20–50
+pin_spacing_meters: 25.0
+
+# Reference KMZ used to enrich each reading (e.g., pipeline alignment).
+# Can be a relative path (recommended) or an absolute path.
+kmz_path: kmz/AirLiquideH2.kmz
+
+# Maximum allowed distance (in meters) between a reading and the nearest
+# feature in the reference KMZ for it to be considered a match.
+# Rows farther than this are excluded.
+# Tighten to be more conservative; loosen for noisier GPS/alignment.
+kmz_distance_threshold: 150.0
+
+# First “capture radius” used when matching to a line before falling back
+# to the pure nearest feature. Think of it as a corridor half‑width.
+# 15.24 meters ≈ 50 feet.
+kmz_buffer_meters: 15.24
+
+# Optional: limit which columns are kept from raw CSVs.
+# Leave empty to keep the standard set the app derives.
+columns_to_extract: []
+
+# Optional: rename incoming CSV headers to the standardized names the app expects.
+# Example: map a vendor’s "Time Stamp" header to our standard "Date".
+# header_renames:
+#   "Time Stamp": "Date"
+#   "Temp (F)": "TEMP (F)"
+header_renames: {}
+
+# Workbook output format. The app writes Excel by default and also writes a
+# CSV variant for the hits flow. Leave as `xlsx`.
+output_format: xlsx
+
+# Optional: add separator rows in the Excel sheets and control their style.
+include_separator_rows: true
+separator_style:
+  # RGB hex without leading #; default is black separator with height 1 row
+  fill_rgb: "000000"
+  height: 1
+

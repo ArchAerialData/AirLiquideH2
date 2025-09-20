@@ -98,6 +98,7 @@ Air Liquide H2 CSV -> Excel + KMZ Exports
     kmz_buffer_meters: 15.24
     ```
   - Other optional keys also supported: `columns_to_extract`, `header_renames`, `output_format`, `include_separator_rows`.
+ - A commented `config.yaml` is included in the repo — edit values directly to customize behavior.
 
 **Dedup Logic (clean.py)**
 - Per CSV, compute unique `(BeginMeasu, EndMeasure)`
